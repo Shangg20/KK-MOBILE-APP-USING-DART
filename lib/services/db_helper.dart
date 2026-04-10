@@ -27,6 +27,7 @@ class DBHelper {
             email TEXT,
             contact_number TEXT,
             sex TEXT,
+            Religion TEXT,
             civil_status TEXT,
             educational_background TEXT,
             region TEXT,

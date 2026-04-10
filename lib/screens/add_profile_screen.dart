@@ -36,6 +36,9 @@ class _AddProfileScreenState extends State<AddProfileScreen> {
   final TextEditingController _attendanceController = TextEditingController();
   final TextEditingController _purokController = TextEditingController();
   final TextEditingController _barangayController = TextEditingController();
+  
+  final TextEditingController _birthDateController = TextEditingController();
+  DateTime? _selectedBirthDate;
 
   // Dropdown Values
   String _selectedGender = 'Male';
@@ -51,12 +54,16 @@ class _AddProfileScreenState extends State<AddProfileScreen> {
   int _isSkVoter = 0;
   int _isRegularVoter = 0;
 
+
   Future<void> _saveData() async {
+    debugPrint("Save button pressed");
     if (_formKey.currentState!.validate()) {
+      debugPrint("Form validated successfully");
       Map<String, dynamic> row = {
         'first_name': _firstNameController.text,
         'middle_name': _middleNameController.text,
         'last_name': _lastNameController.text,
+        'birthdate': _birthDateController.text,
         'age': int.tryParse(_ageController.text) ?? 0,
         'purok': _purokController.text,
         'barangay': _barangayController.text,
@@ -87,6 +94,36 @@ class _AddProfileScreenState extends State<AddProfileScreen> {
         );
         Navigator.pop(context);
       }
+    } else {
+      debugPrint("Form validation failed");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please fill all required fields')),
+        );
+      }
+    }
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now().subtract(const Duration(days: 5475)), // Default to 15 years ago
+      firstDate: DateTime(1990),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != _selectedBirthDate) {
+      setState(() {
+        _selectedBirthDate = picked;
+        // Format: YYYY-MM-DD
+        _birthDateController.text = "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+        
+        // Auto-calculate age
+        int age = DateTime.now().year - picked.year;
+        if (DateTime.now().month < picked.month || (DateTime.now().month == picked.month && DateTime.now().day < picked.day)) {
+          age--;
+        }
+        _ageController.text = age.toString();
+      });
     }
   }
 
@@ -117,6 +154,25 @@ class _AddProfileScreenState extends State<AddProfileScreen> {
               _buildTextField("Middle Name *", _middleNameController),
               _buildTextField("Last Name *", _lastNameController),
 
+              const Text("Birthdate *", style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 5),
+              TextFormField(
+                controller: _birthDateController,
+                readOnly: true, // Prevents keyboard
+                onTap: () => _selectDate(context),
+                decoration: InputDecoration(
+                  hintText: "Select Birthdate (YYYY-MM-DD)",
+                  suffixIcon: const Icon(Icons.calendar_today, size: 20),
+                  filled: true,
+                  fillColor: const Color(0xFFE8F0FE),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                ),
+                validator: (value) => (value == null || value.isEmpty) ? "Required" : null,
+                ),
+
+                const SizedBox(height: 15),
+
               Row(
                 children: [
                   Expanded(child: _buildTextField("Age *", _ageController, isNumber: true)),
@@ -134,21 +190,32 @@ class _AddProfileScreenState extends State<AddProfileScreen> {
               const SizedBox(height: 10),
 
               // --- REGION DROPDOWN (Locked to Region VIII) ---
-              _buildDropdown("Region", ['Region VIII'], (val) => setState(() => _selectedRegion = val!)),
+              _buildDropdown(
+                "Region",
+                ['Region VIII'],
+                (val) => setState(() => _selectedRegion = val!),
+                currentValue: _selectedRegion,
+              ),
 
               // --- PROVINCE DROPDOWN ---
-              _buildDropdown("Province *", provinces, (val) {
-                setState(() {
-                  _selectedProvince = val;
-                  _selectedMunicipality = null; // Reset municipality when province changes
-                });
-              }),
+              _buildDropdown(
+                "Province *",
+                provinces,
+                (val) {
+                  setState(() {
+                    _selectedProvince = val;
+                    _selectedMunicipality = null; // Reset municipality when province changes
+                  });
+                },
+                currentValue: _selectedProvince,
+              ),
 
               // --- MUNICIPALITY DROPDOWN (Cascading) ---
               _buildDropdown(
                 "Municipality *",
                 _selectedProvince == null ? [] : municipalityMap[_selectedProvince]!,
                 (val) => setState(() => _selectedMunicipality = val),
+                currentValue: _selectedMunicipality,
               ),
 
               _buildTextField("Barangay *", _barangayController),
@@ -158,11 +225,36 @@ class _AddProfileScreenState extends State<AddProfileScreen> {
               const Text("II. Demographic Characteristic", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 15),
 
-              _buildDropdown("Civil Status *", ['Single', 'Married', 'Widowed', 'Separated', 'Divorced', 'Unknown', 'Live-in'], (val) => setState(() => _selectedCivilStatus = val)),
-              _buildDropdown("Youth Age Group", ['Child Youth (15-17)', 'Core Youth (18-24)', 'Young Adult (25-30)'], (val) => setState(() => _selectedAgeGroup = val)),
-              _buildDropdown("Educational Background", ['No Formal Education', 'Elementary Graduate', 'High School Graduate', 'College Undergraduate', 'College Graduate', 'Masters Level', 'Masters Graduate', 'Doctorate Level', 'Doctorate Graduate'], (val) => setState(() => _selectedEducation = val)),
-              _buildDropdown("Youth Classification", ['Out-of-School Youth', 'In-School Youth', 'Employed Youth', 'Unemployed Youth', 'Youth with Specific Needs'], (val) => setState(() => _selectedClassification = val)),
-              _buildDropdown("Working Status", ['Employed', 'Unemployed', 'Self-employed', 'Currently Looking for a Job'], (val) => setState(() => _selectedWorkStatus = val)),
+              _buildDropdown(
+                "Civil Status *",
+                ['Single', 'Married', 'Widowed', 'Separated', 'Divorced', 'Unknown', 'Live-in'],
+                (val) => setState(() => _selectedCivilStatus = val),
+                currentValue: _selectedCivilStatus,
+              ),
+              _buildDropdown(
+                "Youth Age Group",
+                ['Child Youth (15-17)', 'Core Youth (18-24)', 'Young Adult (25-30)'],
+                (val) => setState(() => _selectedAgeGroup = val),
+                currentValue: _selectedAgeGroup,
+              ),
+              _buildDropdown(
+                "Educational Background",
+                ['No Formal Education', 'Elementary Graduate', 'High School Graduate', 'College Undergraduate', 'College Graduate', 'Masters Level', 'Masters Graduate', 'Doctorate Level', 'Doctorate Graduate'],
+                (val) => setState(() => _selectedEducation = val),
+                currentValue: _selectedEducation,
+              ),
+              _buildDropdown(
+                "Youth Classification",
+                ['Out-of-School Youth', 'In-School Youth', 'Employed Youth', 'Unemployed Youth', 'Youth with Specific Needs'],
+                (val) => setState(() => _selectedClassification = val),
+                currentValue: _selectedClassification,
+              ),
+              _buildDropdown(
+                "Working Status",
+                ['Employed', 'Unemployed', 'Self-employed', 'Currently Looking for a Job'],
+                (val) => setState(() => _selectedWorkStatus = val),
+                currentValue: _selectedWorkStatus,
+              ),
 
               const SizedBox(height: 15),
               const Text("Registered SK Voter?", style: TextStyle(fontWeight: FontWeight.bold)),
@@ -195,7 +287,10 @@ class _AddProfileScreenState extends State<AddProfileScreen> {
                 width: double.infinity,
                 height: 55,
                 child: ElevatedButton.icon(
-                  onPressed: _saveData,
+                  onPressed: () {
+                    debugPrint("Save button tapped");
+                    _saveData();
+                  },
                   icon: const Icon(Icons.save),
                   label: const Text("Save Profile", style: TextStyle(fontSize: 18)),
                   style: ElevatedButton.styleFrom(
