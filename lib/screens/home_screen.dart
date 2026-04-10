@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'settings_screen.dart'; // Import the new settings page
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Colors from your design
     const Color brandBlue = Color(0xFF3B82F6);
     const Color warningRed = Color(0xFFFEE2E2);
     const Color statusTeal = Color(0xFFCCFBF1);
@@ -15,9 +15,9 @@ class HomeScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // 1. UPDATED HEADER SECTION (Tightened coverage & No Menu Icon)
+            // 1. TIGHTENED HEADER SECTION
             Container(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 15),
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 15), 
               decoration: const BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage('assets/kk_background.png'),
@@ -25,7 +25,7 @@ class HomeScreen extends StatelessWidget {
                   opacity: 0.2, 
                 ),
               ),
-              child: SafeArea( // Ensures content stays below the status bar
+              child: SafeArea(
                 bottom: false,
                 child: Column(
                   children: [
@@ -33,23 +33,54 @@ class HomeScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          "KK Profiling",
+                          "Kk Profiling",
                           style: TextStyle(
                             fontSize: 24, 
                             fontWeight: FontWeight.bold,
                             letterSpacing: 0.5,
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.exit_to_app, size: 28),
-                          onPressed: () {
-                            // Using pushReplacement to go back to login
-                            Navigator.pushReplacementNamed(context, '/login_screen');
+                        // THE THREE DOTS MENU
+                        PopupMenuButton<String>(
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          icon: const Icon(Icons.more_vert, size: 28),
+                          onSelected: (value) {
+                            if (value == 'settings') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                              );
+                            } else if (value == 'logout') {
+                              _showLogoutDialog(context);
+                            }
                           },
+                          itemBuilder: (context) => [
+                            const PopupMenuItem(
+                              value: 'settings',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.settings, size: 20),
+                                  SizedBox(width: 12),
+                                  Text("Settings"),
+                                ],
+                              ),
+                            ),
+                            const PopupMenuItem(
+                              value: 'logout',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.logout, color: Colors.redAccent, size: 20),
+                                  SizedBox(width: 12),
+                                  Text("Logout", style: TextStyle(color: Colors.redAccent)),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 5),
                     
                     // 2. OFFLINE MODE BAR
                     Container(
@@ -69,10 +100,7 @@ class HomeScreen extends StatelessWidget {
                         children: [
                           const Icon(Icons.wifi_off, size: 20, color: Colors.grey),
                           const SizedBox(width: 10),
-                          const Text(
-                            "Offline Mode", 
-                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)
-                          ),
+                          const Text("Offline Mode", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                           const Spacer(),
                           SizedBox(
                             height: 35,
@@ -83,10 +111,7 @@ class HomeScreen extends StatelessWidget {
                                 shape: const StadiumBorder(),
                                 elevation: 0,
                               ),
-                              child: const Text(
-                                "Go Online", 
-                                style: TextStyle(color: Colors.white, fontSize: 12)
-                              ),
+                              child: const Text("Go Online", style: TextStyle(color: Colors.white, fontSize: 12)),
                             ),
                           )
                         ],
@@ -104,10 +129,7 @@ class HomeScreen extends StatelessWidget {
                   // 3. SYNC WARNING BOX
                   Container(
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: warningRed,
-                      borderRadius: BorderRadius.circular(15),
-                    ),
+                    decoration: BoxDecoration(color: warningRed, borderRadius: BorderRadius.circular(15)),
                     child: Column(
                       children: [
                         const Row(
@@ -141,17 +163,14 @@ class HomeScreen extends StatelessWidget {
 
                   const SizedBox(height: 16),
 
-                  // 5. COLLECT BUTTON (Big Blue Card)
+                  // 5. COLLECT BUTTON
                   GestureDetector(
                     onTap: () {
-                      // Logic to open your 3-step profiling form
+                      // We will add the 3-step form navigation here
                     },
                     child: Container(
                       padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: brandBlue,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
+                      decoration: BoxDecoration(color: brandBlue, borderRadius: BorderRadius.circular(20)),
                       child: const Row(
                         children: [
                           Icon(Icons.person_add, color: Colors.white, size: 50),
@@ -159,10 +178,8 @@ class HomeScreen extends StatelessWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text("Collect Youth Profile", 
-                                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                              Text("Gather youth information", 
-                                style: TextStyle(color: Colors.white70)),
+                              Text("Collect Youth Profile", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                              Text("Gather youth information", style: TextStyle(color: Colors.white70)),
                             ],
                           )
                         ],
@@ -172,40 +189,10 @@ class HomeScreen extends StatelessWidget {
 
                   const SizedBox(height: 16),
 
-                  // 6. DATA COLLECTION TIPS
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.blue[50],
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(color: Colors.blue[100]!),
-                    ),
-                    child: const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.lightbulb_outline),
-                            SizedBox(width: 10),
-                            Text("Data Collection Tips", style: TextStyle(fontWeight: FontWeight.bold)),
-                          ],
-                        ),
-                        SizedBox(height: 8),
-                        Text("• Verify Youth information accuracy"),
-                        Text("• Works Offline- syncs when online"),
-                        Text("• All data is securely stored"),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // 7. SYNC STATUS & ABOUT
+                  // 6. SYNC STATUS & ABOUT
                   _buildSimpleInfoCard("Sync Status", "3 record waiting to sync", statusTeal),
                   const SizedBox(height: 16),
-                  _buildSimpleInfoCard("About This App", 
-                    "Mobile data collection tool for SK Youth Profiling System.", Colors.white, 
-                    hasBorder: true),
+                  _buildSimpleInfoCard("About This App", "Mobile data collection tool for SK Youth Profiling System.", Colors.white, hasBorder: true),
                 ],
               ),
             ),
@@ -215,16 +202,29 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Helper widget for Stats
+  // LOGOUT DIALOG LOGIC
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Logout"),
+        content: const Text("Are you sure you want to logout?"),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+          TextButton(
+            onPressed: () => Navigator.pushReplacementNamed(context, '/login'), 
+            child: const Text("Logout", style: TextStyle(color: Colors.red))
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildStatCard(String title, String count, Color countColor) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 5)],
-        ),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15), boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 5)]),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -237,22 +237,16 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Helper widget for Simple Cards
   Widget _buildSimpleInfoCard(String title, String subtitle, Color bgColor, {bool hasBorder = false}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(15),
-        border: hasBorder ? Border.all(color: Colors.black26) : null,
-      ),
+      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(15), border: hasBorder ? Border.all(color: Colors.black26) : null),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Center(child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold))),
+          Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 5),
-          Center(child: Text(subtitle, textAlign: TextAlign.center)),
+          Text(subtitle, textAlign: TextAlign.center),
         ],
       ),
     );
