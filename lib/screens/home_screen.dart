@@ -15,55 +15,85 @@ class HomeScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // 1. TOP HEADER SECTION
+            // 1. UPDATED HEADER SECTION (Tightened coverage & No Menu Icon)
             Container(
-              padding: const EdgeInsets.fromLTRB(20, 60, 20, 30),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 15),
               decoration: const BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage('assets/kk_background.png'),
                   fit: BoxFit.cover,
-                  opacity: 0.3, // Light opacity to show the white background
+                  opacity: 0.2, 
                 ),
               ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Icon(Icons.menu, size: 30),
-                      const Text(
-                        "Kk Profiling",
-                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
-                      const Icon(Icons.logout, size: 30),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  // Offline Mode Bar
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.9),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Row(
+              child: SafeArea( // Ensures content stays below the status bar
+                bottom: false,
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Icon(Icons.wifi_off),
-                        const SizedBox(width: 10),
-                        const Text("Offline Mode", style: TextStyle(fontWeight: FontWeight.w500)),
-                        const Spacer(),
-                        ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: brandBlue,
-                            shape: StadiumBorder(),
+                        const Text(
+                          "KK Profiling",
+                          style: TextStyle(
+                            fontSize: 24, 
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
                           ),
-                          child: const Text("Go Online", style: TextStyle(color: Colors.white)),
-                        )
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.exit_to_app, size: 28),
+                          onPressed: () {
+                            // Using pushReplacement to go back to login
+                            Navigator.pushReplacementNamed(context, '/login_screen');
+                          },
+                        ),
                       ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 10),
+                    
+                    // 2. OFFLINE MODE BAR
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
+                          )
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.wifi_off, size: 20, color: Colors.grey),
+                          const SizedBox(width: 10),
+                          const Text(
+                            "Offline Mode", 
+                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)
+                          ),
+                          const Spacer(),
+                          SizedBox(
+                            height: 35,
+                            child: ElevatedButton(
+                              onPressed: () {},
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: brandBlue,
+                                shape: const StadiumBorder(),
+                                elevation: 0,
+                              ),
+                              child: const Text(
+                                "Go Online", 
+                                style: TextStyle(color: Colors.white, fontSize: 12)
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
 
@@ -71,7 +101,7 @@ class HomeScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  // 2. SYNC WARNING BOX
+                  // 3. SYNC WARNING BOX
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -80,11 +110,11 @@ class HomeScreen extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        Row(
+                        const Row(
                           children: [
-                            const Icon(Icons.error_outline, color: Colors.red),
-                            const SizedBox(width: 10),
-                            const Text("3 record not synced to server"),
+                            Icon(Icons.error_outline, color: Colors.red),
+                            SizedBox(width: 10),
+                            Text("3 record not synced to server"),
                           ],
                         ),
                         const SizedBox(height: 10),
@@ -100,7 +130,7 @@ class HomeScreen extends StatelessWidget {
 
                   const SizedBox(height: 16),
 
-                  // 3. STATS CARDS
+                  // 4. STATS CARDS
                   Row(
                     children: [
                       _buildStatCard("Total Collected", "5", brandBlue),
@@ -111,10 +141,10 @@ class HomeScreen extends StatelessWidget {
 
                   const SizedBox(height: 16),
 
-                  // 4. COLLECT BUTTON (Big Blue Card)
+                  // 5. COLLECT BUTTON (Big Blue Card)
                   GestureDetector(
                     onTap: () {
-                      // Navigate to the Stepper form we discussed
+                      // Logic to open your 3-step profiling form
                     },
                     child: Container(
                       padding: const EdgeInsets.all(20),
@@ -122,13 +152,13 @@ class HomeScreen extends StatelessWidget {
                         color: brandBlue,
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Row(
+                      child: const Row(
                         children: [
-                          const Icon(Icons.person_add, color: Colors.white, size: 50),
-                          const SizedBox(width: 20),
+                          Icon(Icons.person_add, color: Colors.white, size: 50),
+                          SizedBox(width: 20),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
+                            children: [
                               Text("Collect Youth Profile", 
                                 style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                               Text("Gather youth information", 
@@ -142,7 +172,7 @@ class HomeScreen extends StatelessWidget {
 
                   const SizedBox(height: 16),
 
-                  // 5. DATA COLLECTION TIPS
+                  // 6. DATA COLLECTION TIPS
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -150,27 +180,27 @@ class HomeScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(15),
                       border: Border.all(color: Colors.blue[100]!),
                     ),
-                    child: Column(
+                    child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
-                          children: const [
+                          children: [
                             Icon(Icons.lightbulb_outline),
                             SizedBox(width: 10),
                             Text("Data Collection Tips", style: TextStyle(fontWeight: FontWeight.bold)),
                           ],
                         ),
-                        const SizedBox(height: 8),
-                        const Text("• Verify Youth information accuracy"),
-                        const Text("• Works Offline- syncs when online"),
-                        const Text("• All data is securely stored"),
+                        SizedBox(height: 8),
+                        Text("• Verify Youth information accuracy"),
+                        Text("• Works Offline- syncs when online"),
+                        Text("• All data is securely stored"),
                       ],
                     ),
                   ),
 
                   const SizedBox(height: 16),
 
-                  // 6. SYNC STATUS & ABOUT
+                  // 7. SYNC STATUS & ABOUT
                   _buildSimpleInfoCard("Sync Status", "3 record waiting to sync", statusTeal),
                   const SizedBox(height: 16),
                   _buildSimpleInfoCard("About This App", 
@@ -193,7 +223,7 @@ class HomeScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(15),
-          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 5)],
+          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 5)],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,7 +252,7 @@ class HomeScreen extends StatelessWidget {
         children: [
           Center(child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold))),
           const SizedBox(height: 5),
-          Text(subtitle, textAlign: TextAlign.center),
+          Center(child: Text(subtitle, textAlign: TextAlign.center)),
         ],
       ),
     );
