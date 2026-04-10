@@ -33,6 +33,7 @@ class DBHelper {
             province TEXT,
             municipality TEXT,
             barangay TEXT,
+            purok TEXT,
             youth_classification TEXT,
             youth_age_group TEXT,
             specific_needs TEXT,
