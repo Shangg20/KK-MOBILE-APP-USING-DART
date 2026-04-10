@@ -17,11 +17,12 @@ class _HomeScreenState extends State<HomeScreen> {
   late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
   bool isOnline = true;
   int pendingCount = 0;
+  int totalCOunt = 0;
 
   @override
   void initState() {
     super.initState();
-    _refreshPendingCount();
+    _refreshStats();
 
     // LISTEN FOR CONNECTIVITY CHANGES
     _connectivitySubscription = Connectivity().onConnectivityChanged.listen((results) {
@@ -34,16 +35,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (hasInternet) {
         // TRIGGER AUTO SYNC WHEN ONLINE
-        SyncService.performAutoSync().then((_) => _refreshPendingCount());
+        SyncService.performAutoSync().then((_) => _refreshStats());
       }
     });
   }
 
-  Future<void> _refreshPendingCount() async {
-    final data = await DBHelper().getUnsyncedData();
+  Future<void> _refreshStats() async {
+    final unsynceData = await DBHelper().getUnsyncedData();
+    final total = await DBHelper().getTotalProfileCount();
     if (mounted) {
       setState(() {
-        pendingCount = data.length;
+        pendingCount = unsynceData.length;
+        totalCOunt = total;
       });
     }
   }
@@ -130,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   // 3. STAT CARDS (UPDATED DYNAMICALLY)
                   Row(
                     children: [
-                      _buildStatCard("Total Profiles", "5", brandBlue), // Update logic later
+                      _buildStatCard("Total Profiles", "$totalCOunt", brandBlue), // Update logic later
                       const SizedBox(width: 16),
                       _buildStatCard("Pending Sync", "$pendingCount", pendingCount > 0 ? Colors.orange : Colors.green),
                     ],
@@ -145,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => const AddProfileScreen()),
-                        ).then((_) => _refreshPendingCount()); // Refresh count when coming back
+                        ).then((_) => _refreshStats()); // Refresh count when coming back
                     },
                     child: Container(
                       padding: const EdgeInsets.all(20),
@@ -177,7 +180,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   // 5. INFO SECTION
                   _buildSimpleInfoCard("Sync Status", isOnline ? "Cloud Connection Active" : "Local Storage Enabled", brandBlue.withValues(alpha: 0.1), hasBorder: true),
                   const SizedBox(height: 15),
-                  _buildSimpleInfoCard("Current Locale", "Almeria, Biliran", Colors.grey.shade50, hasBorder: true),
+                  _buildSimpleInfoCard("Current Locale", "Carigara, Leyte", Colors.grey.shade50, hasBorder: true),
                 ],
               ),
             ),

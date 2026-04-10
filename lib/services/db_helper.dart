@@ -65,6 +65,15 @@ class DBHelper {
     return await db.query('profiling', where: 'is_synced = ?', whereArgs: [0]);
   }
 
+  // Inside lib/services/db_helper.dart
+
+  Future<int> getTotalProfileCount() async {
+    final db = await database;
+    // This is the fastest way to get a count in SQLite
+    final result = await db.rawQuery('SELECT COUNT(*) FROM profiling');
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
+
   // --- NEW: MARK AS SYNCED ---
   Future<int> markAsSynced(int id) async {
     final db = await database;
